@@ -27,7 +27,7 @@ The example is an 18 second film for Fernwise, a made up houseplant app. It rend
 
 ## Prerequisites
 
-- **Node.js 22.6 or newer** and npm (the pipeline reads `src/timeline.ts` directly with Node's type stripping).
+- **Node.js 22.6 or newer** and npm (the pipeline reads `src/timeline.ts` directly with Node's type stripping). The first render downloads Remotion's Chrome Headless Shell (about 94 MB) into `node_modules`, so it needs a network connection once.
 - **ffmpeg and ffprobe** with libx264 and the `ebur128` filter (any recent build; `brew install ffmpeg` or your package manager).
 - **Python 3.9 or newer**. The pipeline uses only the standard library; the optional stills step needs `pip install openai`.
 - **Whisper**, for caption word timings, either:
@@ -119,4 +119,4 @@ Remotion is not MIT licensed. It is free for individuals, for-profit companies w
 
 ## License
 
-This repository's own code and text are under the MIT license (`LICENSE`). The bundled fonts, Figtree and IBM Plex Mono, are under the SIL Open Font License 1.1 (license texts in `template/public/fonts/`). Remotion and the other npm dependencies keep their own licenses.
+This repository's own code and text are under the MIT license (`LICENSE`). The MIT license does not cover the bundled fonts, Figtree and IBM Plex Mono, which are under the SIL Open Font License 1.1 (license texts in `template/public/fonts/`), nor Remotion and the other npm dependencies, which keep their own licenses (Remotion's is above).

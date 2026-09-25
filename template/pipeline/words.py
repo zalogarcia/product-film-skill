@@ -207,6 +207,17 @@ with tempfile.TemporaryDirectory() as td:
         extra = f"  ({', '.join(notes)})" if notes else ""
         print(f"{lid}: {method:12s} {len(display)} words, {dur:.2f} s   heard: {out['lines'][lid]['heard']!r}{extra}")
 
-with open(C.generated("words.json"), "w") as f:
-    json.dump(out, f, indent=1)
-print("wrote public/generated/words.json")
+# write only when the timings changed: check:final treats a newer words.json as a reason to re-render
+path = C.generated("words.json")
+old = None
+if os.path.exists(path):
+    try:
+        old = json.load(open(path, encoding="utf-8"))
+    except ValueError:
+        pass
+if old == out:
+    print("public/generated/words.json unchanged")
+else:
+    with open(path, "w") as f:
+        json.dump(out, f, indent=1)
+    print("wrote public/generated/words.json")

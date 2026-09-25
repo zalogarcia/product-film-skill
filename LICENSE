@@ -19,11 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-This license covers this repository's own code and text. It does not cover:
-
-- Remotion and the other npm packages the starter installs, which keep their
-  own licenses (Remotion's license requires a paid company license for
-  for-profit companies with more than 3 employees; see README.md).
-- The fonts in template/public/fonts (Figtree and IBM Plex Mono), which are
-  under the SIL Open Font License 1.1; the license texts sit next to them.
