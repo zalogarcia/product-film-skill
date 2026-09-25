@@ -75,7 +75,8 @@ def ffmpeg(*args):
 
 def duration(path):
     r = run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path])
-    return float(r.stdout.strip())
+    s = r.stdout.strip()
+    return float(s) if s and s != "N/A" else 0.0  # ffprobe says N/A for a file with no samples
 
 
 def pcm_mono(path, rate=16000):

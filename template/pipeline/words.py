@@ -16,7 +16,8 @@ Whisper backends, first one found wins:
     model name from WHISPER_PY_MODEL (default base.en)
   - none: words spread over the line by character count, flagged
     "proportional"; check:captions fails on it unless you pass
-    --allow-proportional
+    --allow-proportional. A silent placeholder voice (no voice engine at
+    all) gets the same proportional timing, since there is nothing to hear.
 
 Two corrections, measured on the voice file itself (10 ms RMS windows):
   - Drift: some whisper models (the small ones especially) stretch word
@@ -181,10 +182,12 @@ with tempfile.TemporaryDirectory() as td:
         display = line["text"].split()
         wav16 = os.path.join(td, f"{lid}.wav")
         C.ffmpeg("-i", wav, "-ar", "16000", "-ac", "1", wav16)
-        heard = transcribe(kind, exe, model, wav16) if kind != "none" else []
-        notes = []
+        rms, floor = envelope(wav16)
+        # the silent placeholder voice has nothing to hear: time its words by length
+        silent = not rms or max(rms) == 0
+        heard = transcribe(kind, exe, model, wav16) if kind != "none" and not silent else []
+        notes = ["silent voice"] if silent else []
         if heard:
-            rms, floor = envelope(wav16)
             if fix_drift(heard, rms, floor):
                 notes.append("drift corrected")
             words, method = align(display, heard)

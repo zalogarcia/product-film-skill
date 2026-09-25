@@ -85,7 +85,8 @@ def synth(line, engine, v, voice_id, raw):
     if engine == "espeak-ng":
         C.run(["espeak-ng", "-s", str(int(175 * settings.get("speed", 1.0))), "-w", raw, text])
         return "PLACEHOLDER espeak-ng (timing and layout only, do not publish)"
-    dur = 0.35 * len(text.split()) + 0.3
+    # silence as long as a brisk narrator would take: 18 characters per second at speed 1.0
+    dur = len(text) / (18 * settings.get("speed", 1.0))
     C.ffmpeg("-f", "lavfi", "-i", f"anullsrc=r=48000:cl=mono", "-t", f"{dur:.2f}", raw)
     return "PLACEHOLDER silence (no voice engine found; timing only)"
 

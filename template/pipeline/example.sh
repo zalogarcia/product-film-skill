@@ -30,9 +30,10 @@ step "stills"; python3 pipeline/stills.py
 
 step "gate: timeline"; python3 pipeline/check_timeline.py
 step "gate: captions"
-if python3 -c 'import json,sys; sys.exit(0 if json.load(open("public/generated/words.json"))["backend"]=="none" else 1)'; then
-  echo "NOTE: no whisper found, so word timings are proportional guesses. Fine for this demo;"
-  echo "      install whisper.cpp or openai-whisper before a real film (README, prerequisites)."
+if python3 -c 'import json,sys; sys.exit(0 if any(L["method"]=="proportional" for L in json.load(open("public/generated/words.json"))["lines"].values()) else 1)'; then
+  echo "NOTE: word timings are proportional guesses (no whisper found, or the placeholder voice is"
+  echo "      silence). Fine for this demo; install whisper.cpp or openai-whisper, and use a real"
+  echo "      voice, before a real film (README, prerequisites)."
   python3 pipeline/check_captions.py --allow-proportional
 else
   python3 pipeline/check_captions.py
