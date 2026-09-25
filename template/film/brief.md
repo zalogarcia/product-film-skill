@@ -26,6 +26,6 @@ The product's name and address on the end card. No price.
 
 ## Cuts
 
-- Master: 16:9, 1920x1080, 18 s.
+- Master: 16:9, 1920x1080, 18 s, captions burned in.
 - Vertical: 9:16, 1080x1920, 18 s, captions burned in for sound off viewing, loops seamlessly.
 - Teaser: about 10 s, cut from the vertical.

@@ -3,8 +3,10 @@
 A [Claude Code](https://docs.claude.com/en/docs/claude-code) skill plus a [Remotion](https://www.remotion.dev) starter project for making short motion graphics product films. Ask Claude "make a product film for my product" and it works through a written process: a brief, three concepts and a critic pass, a claims ledger that sources every on-screen promise, a script, then ONE timeline file that drives the picture, the captions and the audio mix together. It ends with three cuts:
 
 - a 16:9 master (1920x1080),
-- a 9:16 vertical (1080x1920) with burned in karaoke captions that loops seamlessly,
+- a 9:16 vertical (1080x1920), recomposed for phones, that loops seamlessly,
 - a short teaser cut from the vertical.
+
+Every cut burns in karaoke captions for sound off viewing (set `captions: false` on a cut in `src/timeline.ts` for a clean picture).
 
 Quality gates run before anything ships: timeline fit, caption timing, a claims check, safe zones, a frame check, loudness and format on the final files, and an independent review.
 
@@ -44,7 +46,7 @@ cd product-film-skill
 bash install.sh
 ```
 
-`install.sh` copies `skill/product-film` into `~/.claude/skills/product-film` and puts a clean copy of `template/` inside it, so the skill can start new films from anywhere. Use `bash install.sh --dest <folder>` for a different skills folder. To do it by hand:
+`install.sh` copies `skill/product-film` into `~/.claude/skills/product-film` and puts a clean copy of `template/` inside it, so the skill can start new films from anywhere. Use `bash install.sh --dest <folder>` (or set `CLAUDE_SKILLS_DIR`) for a different skills folder. To do it by hand:
 
 ```bash
 cp -R skill/product-film ~/.claude/skills/

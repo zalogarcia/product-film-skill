@@ -10,7 +10,7 @@ The reviewer scores each criterion 1 to 5 with the evidence (a timestamp, a fram
 | 2 | One story | One chain of consequences; no shot that moves nothing forward; the turn lands between 20 and 45 percent of the running time. |
 | 3 | Product truth | Every capability on screen or in the voice has a sourced row in `film/claims.md` with status OK. No invented numbers. |
 | 4 | Readability | One idea per card, six words or fewer, readable at phone size; no text on screen too briefly to read; voice and text agree. |
-| 5 | Captions (vertical and teaser) | Every spoken word captioned, lit when it is heard (not before), one or two balanced lines, no lonely one word page. |
+| 5 | Captions (every cut that burns them in) | Every spoken word captioned, lit when it is heard (not before), one or two balanced lines, no lonely one word page. |
 | 6 | Safe zones | On the 9:16 cuts nothing important under the top bar, the bottom rail or the right hand buttons. `npm run check:safe -- vertical` passes. |
 | 7 | Look | One visual system; the product's colours and type; no generic gradients or glow; no bounce; UI in space, not a screen recording. |
 | 8 | Sound | Every line intelligible over the music (transcribe the mix back to check); effects sparse; the music turns with the picture; the end resolves. |

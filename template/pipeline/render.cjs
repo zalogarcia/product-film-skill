@@ -22,7 +22,15 @@ const { bundle } = require("@remotion/bundler");
 const { renderMedia, renderStill, selectComposition } = require("@remotion/renderer");
 
 const ROOT = path.resolve(__dirname, "..");
-const COMPS = { master: "Master", vertical: "Vertical" };
+// the cuts and their composition ids come from the timeline, like everything else
+const { execFileSync } = require("child_process");
+const TL = JSON.parse(
+  execFileSync(process.execPath, ["--no-warnings", "--experimental-strip-types", "pipeline/timeline-json.mjs"], {
+    cwd: ROOT,
+    encoding: "utf8",
+  }),
+);
+const COMPS = Object.fromEntries(Object.entries(TL.cuts).map(([id, c]) => [id, c.comp]));
 
 const argv = process.argv.slice(2);
 const cut = argv[0];
@@ -32,7 +40,9 @@ const opt = (name, def) => {
 };
 const flag = (name) => argv.includes(`--${name}`);
 if (!cut || !COMPS[cut]) {
-  process.stderr.write("usage: npm run render -- <master|vertical> [--scale N] [--crf N] [--concurrency N] [--out PATH] [--probe] [--still SECONDS]\n");
+  process.stderr.write(
+    `usage: npm run render -- <${Object.keys(COMPS).join("|")}> [--scale N] [--crf N] [--concurrency N] [--out PATH] [--probe] [--still SECONDS]\n`,
+  );
   process.exit(2);
 }
 const scale = Number(opt("scale", process.env.SCALE || "1"));

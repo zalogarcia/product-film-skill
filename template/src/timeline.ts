@@ -39,6 +39,8 @@ export type Line = {
   claim: string;
   /** true when the same words are already on screen as type (an end card): no caption */
   onScreen?: boolean;
+  /** this line only: speaking rate, 0.7 to 1.2 (overrides the speaker's settings.speed) */
+  speed?: number;
 };
 
 export const LINES: Line[] = [
@@ -95,6 +97,8 @@ export type CutSpec = {
   w: number;
   h: number;
   dur: number;
+  /** burn in the karaoke captions (default true); false gives a clean picture */
+  captions?: boolean;
   acts: {
     hook: Seg;
     nudge: Seg;

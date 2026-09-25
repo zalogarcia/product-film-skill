@@ -1,9 +1,9 @@
 ---
 name: product-film
-description: Make a short motion-graphics product film (16:9 master, 9:16 vertical with burned-in captions, and a teaser) from a product brief, with Remotion, a timeline that drives picture, captions and the audio mix, and quality gates. Use when the user asks for a product film, a launch video, a SaaS explainer, or a promo video for their product. Not for editing footage they filmed, and not for AI-generated live action clips.
+description: Make a short motion-graphics product film (16:9 master, 9:16 vertical, and a teaser, all with burned-in captions) from a product brief, with Remotion, a timeline that drives picture, captions and the audio mix, and quality gates. Use when the user asks for a product film, a launch video, a SaaS explainer, or a promo video for their product. Not for editing footage they filmed, and not for AI-generated live action clips.
 ---
 
-Take "make a product film for my product" to three finished cuts: a 16:9 master, a 9:16 vertical with karaoke captions that loops seamlessly, and a short teaser. Everything is driven by ONE timeline file, every on-screen promise is sourced, and nothing ships without passing the gates.
+Take "make a product film for my product" to three finished cuts: a 16:9 master, a 9:16 vertical that loops seamlessly, and a short teaser, each with karaoke captions burned in for sound off viewing. Everything is driven by ONE timeline file, every on-screen promise is sourced, and nothing ships without passing the gates.
 
 ## When to invoke
 
@@ -71,7 +71,7 @@ Write the beat sheet to `film/script.md` (time, act, picture, voice line, sound)
 
 - `LINES`: every spoken line with its id, speaker, caption text, optional `tts` spelling, start time and claim id.
 - `EV`: named moments that scenes and sound cues both read.
-- `CUTS`: the master and the vertical, each with its size, length and acts. The vertical is a recomposition with its own act timing, not a crop.
+- `CUTS`: the master and the vertical, each with its size, length and acts. The vertical is a recomposition with its own act timing, not a crop. `captions: false` on a cut renders it without burned-in captions.
 - `COPY`: every string the picture shows, each with a claim id or a reserved kind (`story`, `brand`, `label`, `legal`). Scenes read text only through `T("key")`.
 - `sfxFor`, `MUSIC` (global styles, one section per act, gain keyframes, the duck under speech) and `TEASER` (segments on the vertical's clock).
 
@@ -89,7 +89,7 @@ npm run sfx                # ElevenLabs sound effects from the config prompts
 npm run stills             # optional OpenAI plates (skipped without a key)
 ```
 
-After ANY voice change: `npm run words`, then `npm run check:timeline`, then fix `src/timeline.ts` until it passes. A regenerated line always comes back a different length. A voice that reads a line faster than its caption can be read fails `check:captions`: shorten the line, or slow the voice with `speed` under the speaker's `settings` in `film.config.json` (ElevenLabs accepts 0.7 to 1.2), then `npm run voice -- --only <line id>`.
+After ANY voice change: `npm run words`, then `npm run check:timeline`, then fix `src/timeline.ts` until it passes. A regenerated line always comes back a different length. A voice that reads a line faster than its caption can be read fails `check:captions`: shorten the line, or slow just that line with `speed` on it in `src/timeline.ts` (0.7 to 1.2), then `npm run voice -- --only <line id>`. The speaker's `settings.speed` in `film.config.json` changes every line of that speaker, so the next `npm run voice` re-voices all of them.
 
 ### 6. Picture
 
@@ -140,6 +140,7 @@ The short list; `references/craft.md` has the reasoning and numbers.
 - **Whisper hands pauses to the next word.** The word after a pause often starts on the tail of the previous word, so its caption lights a third of a second before it is heard. `words.py` moves any word that starts in silence, or on a tail right before a pause of 100 ms or more, to where the voice's energy returns; `check:captions` runs the same tests and fails what is left.
 - **Whisper word times drift.** Models disagree by 0.1 to 0.3 s on the same file, and a small model can stretch a line so its last word "ends" after the audio does. `words.py` maps a stretched transcript back onto the audible speech; for a real film fetch a bigger model (`npm run whisper-model -- small.en`, then `WHISPER_MODEL=models/ggml-small.en.bin npm run words`) and watch the vertical once with the sound on.
 - **A regenerated voice line changes length.** Every timing after it is now a guess. Re-run `words` and `check:timeline` after every voice change, and never trust durations from an earlier take.
+- **The placeholder voice moves its rate in coarse steps.** macOS `say` gives identical audio at 157 and 175 words per minute, so a `speed` of 0.9 can leave a placeholder line exactly as long as before. Judge a speed change on the real voice (ElevenLabs and `espeak-ng` scale smoothly).
 - **The Remotion CLI can crash on long or large renders.** A slow font load makes Remotion retry the frame; the CLI's progress bar counts the retries again and can crash at 4K. Render through `npm run render` (the Node API, no progress bar, 120 s page timeout). Under heavy machine load a font load can stall a batch of frames for about a minute before the retry succeeds; the render still finishes.
 - **The encode moves the true peak.** AAC overshoots the WAV's true peak by a dB or more, so the mix limits to about -3 dBFS and `check:final` measures the encoded file, never the WAV.
 - **Full range video.** Remotion writes full range H.264; players expect limited range. `finish` converts it (a relabel alone shifts every colour).

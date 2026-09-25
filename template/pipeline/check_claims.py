@@ -11,14 +11,14 @@ Fails (exit 1) when:
   - a claim in use has no source, or a status other than OK
   - a banned word (film.config.json bannedWords) appears in anything the
     viewer reads or hears
-  - a scene or UI file hard-codes visible text instead of reading it from
-    COPY (text outside COPY escapes this check, so it is not allowed)
+  - any .tsx file under src/ hard-codes visible text (JSX text, a displayed
+    string literal, or a text-like prop) instead of reading it from COPY:
+    text outside COPY escapes this check, so it is not allowed
 
 Reserved claim kinds that need no ledger row: story (fiction inside the
 film), brand (name, tagline, URL), label (UI chrome that promises nothing),
 legal (disclaimers).
 """
-import glob
 import json
 import os
 import re
@@ -65,12 +65,10 @@ for cid, where, text in used:
         if re.search(r"(?<![\w-])" + re.escape(b) + r"(?![\w-])", text, re.IGNORECASE):
             fails.append(f"{where}: banned word '{b}' in \"{text}\"")
 
-# visible text must come from COPY: no text hard-coded in scene or UI JSX
-tsx = sorted(glob.glob(os.path.join(C.ROOT, "src", "scenes", "*.tsx")) + glob.glob(os.path.join(C.ROOT, "src", "ui", "*.tsx")))
-if tsx:
-    r = C.run(["node", "pipeline/jsx-text.cjs", *tsx], cwd=C.ROOT)
-    for hit in json.loads(r.stdout):
-        fails.append(f"{os.path.relpath(hit['file'], C.ROOT)}:{hit['line']}: hard-coded visible text \"{hit['text']}\" (put it in COPY)")
+# visible text must come from COPY: no text hard-coded in any .tsx under src/
+r = C.run(["node", "pipeline/jsx-text.cjs", "src"], cwd=C.ROOT)
+for hit in json.loads(r.stdout):
+    fails.append(f"{os.path.relpath(hit['file'], C.ROOT)}:{hit['line']}: hard-coded visible text \"{hit['text']}\" (put it in COPY)")
 
 in_use = {c for c, _, _ in used}
 for cid in rows:

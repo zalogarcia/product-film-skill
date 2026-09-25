@@ -52,12 +52,21 @@ def engine_for(who):
     return "silence", v, None
 
 
+def settings_for(line, v):
+    """The speaker's voice settings, with this line's own speed on top."""
+    s = dict(v.get("settings") or {})
+    if line.get("speed") is not None:
+        s["speed"] = line["speed"]
+    return s
+
+
 def synth(line, engine, v, voice_id, raw):
     text = line.get("tts") or line["text"]
+    settings = settings_for(line, v)
     if engine == "elevenlabs":
         body = {"text": text, "model_id": v.get("elevenlabsModel", "eleven_multilingual_v2")}
-        if v.get("settings"):
-            body["voice_settings"] = v["settings"]
+        if settings:
+            body["voice_settings"] = settings
         code = C.curl_json(
             f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}?output_format=mp3_44100_128",
             body, C.eleven_headers(), raw,
@@ -67,12 +76,14 @@ def synth(line, engine, v, voice_id, raw):
             C.die(f"ElevenLabs TTS returned HTTP {code} for {line['id']}: {msg}")
         return "ElevenLabs TTS (" + body["model_id"] + ")"
     if engine == "say":
-        r = C.subprocess.run(["say", "-v", v.get("sayVoice", "Samantha"), "-o", raw, text], capture_output=True)
+        # words per minute (175 is the default); say moves in coarse steps, so small speeds may not change it
+        rate = str(int(175 * settings.get("speed", 1.0)))
+        r = C.subprocess.run(["say", "-v", v.get("sayVoice", "Samantha"), "-r", rate, "-o", raw, text], capture_output=True)
         if r.returncode != 0:  # the named voice is not installed: use the default one
-            C.run(["say", "-o", raw, text])
+            C.run(["say", "-r", rate, "-o", raw, text])
         return "PLACEHOLDER macOS say (timing and layout only, do not publish)"
     if engine == "espeak-ng":
-        C.run(["espeak-ng", "-w", raw, text])
+        C.run(["espeak-ng", "-s", str(int(175 * settings.get("speed", 1.0))), "-w", raw, text])
         return "PLACEHOLDER espeak-ng (timing and layout only, do not publish)"
     dur = 0.35 * len(text.split()) + 0.3
     C.ffmpeg("-f", "lavfi", "-i", f"anullsrc=r=48000:cl=mono", "-t", f"{dur:.2f}", raw)
@@ -99,7 +110,9 @@ for line in tl["lines"]:
         continue
     engine, v, voice_id = engine_for(line["who"])
     text = line.get("tts") or line["text"]
-    key = hashlib.sha1(json.dumps([engine, voice_id and hashlib.sha1(voice_id.encode()).hexdigest(), text, v.get("settings"), v.get("elevenlabsModel"), v.get("sayVoice")]).encode()).hexdigest()
+    key = hashlib.sha1(json.dumps([engine, voice_id and hashlib.sha1(voice_id.encode()).hexdigest(), text,
+                                   settings_for(line, v), v.get("elevenlabsModel"), v.get("sayVoice")],
+                                  sort_keys=True).encode()).hexdigest()
     dst = C.build("voice", f"{lid}.wav")
     if not args.force and manifest.get(lid, {}).get("hash") == key and os.path.exists(dst):
         print(f"{lid}: unchanged ({manifest[lid]['dur']:.2f} s)")

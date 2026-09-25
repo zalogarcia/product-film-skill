@@ -50,6 +50,11 @@ def plan_for(cut):
     sections, used = [], 0
     secs = cut["music"]["sections"]
     for i, s in enumerate(secs):
+        if abs(s["from"] * 1000 - used) > 1:
+            C.die(f"{cut['id']}: music section '{s['name']}' starts at {s['from']} s, but the sections before it end at "
+                  f"{used / 1000} s. Sections must tile the cut (run `npm run check:timeline`).")
+        if i == len(secs) - 1 and abs(s["to"] - cut["dur"]) > 0.001:
+            C.die(f"{cut['id']}: the last music section ends at {s['to']} s, the cut is {cut['dur']} s")
         ms = total - used if i == len(secs) - 1 else int(round((s["to"] - s["from"]) * 1000))
         used += ms
         if ms < MIN_SECTION_MS:
@@ -127,39 +132,67 @@ def to_track(raw, cut):
 
 cuts = [c for cid, c in tl["cuts"].items() if not args.cut or cid in args.cut]
 keyed = not C.no_keys() and bool(os.environ.get("ELEVENLABS_API_KEY"))
+take_path = lambda cid, t: C.build("music", "raw", f"{cid}.take{t}.mp3")
+
+
+def save():
+    with open(man_path, "w") as f:
+        json.dump(manifest, f, indent=1)
+
+
+if args.use:
+    # check every cut first, so a missing take never leaves some cuts promoted and others not
+    missing = [c["id"] for c in cuts if not os.path.exists(take_path(c["id"], args.use))]
+    if missing:
+        C.die(f"no take {args.use} for: {', '.join(missing)} (generate it with --takes {args.use}, or pass --cut)")
+    for cut in cuts:
+        cid = cut["id"]
+        to_track(take_path(cid, args.use), cut)
+        manifest.setdefault(cid, {})["take"] = args.use
+        C.record_source(f"music/{cid}.wav", f"ElevenLabs Music (music_v1), take {args.use}")
+        save()
+        print(f"{cid}: take {args.use} is now build/music/{cid}.wav")
+    raise SystemExit(0)
 
 for cut in cuts:
     cid = cut["id"]
     plan = plan_for(cut)
-    if args.use:
-        raw = C.build("music", "raw", f"{cid}.take{args.use}.mp3")
-        if not os.path.exists(raw):
-            C.die(f"{cid}: no take {args.use} at {os.path.relpath(raw, C.ROOT)}")
-        to_track(raw, cut)
-        manifest.setdefault(cid, {})["take"] = args.use
-        C.record_source(f"music/{cid}.wav", f"ElevenLabs Music (music_v1), take {args.use}")
-        print(f"{cid}: take {args.use} is now build/music/{cid}.wav")
-        continue
     engine = "elevenlabs" if keyed else "placeholder"
     key = hashlib.sha1(json.dumps([engine, plan]).encode()).hexdigest()
     dst = C.build("music", f"{cid}.wav")
-    if not args.force and manifest.get(cid, {}).get("hash") == key and os.path.exists(dst):
-        print(f"{cid}: unchanged")
-        continue
-    if engine == "elevenlabs":
+    fresh = manifest.get(cid, {}).get("hash") == key and os.path.exists(dst) and not args.force
+    if engine == "placeholder":
+        if fresh:
+            print(f"{cid}: unchanged")
+            continue
+        to_track(placeholder(cid, plan), cut)
+        source = "PLACEHOLDER synthesized chord pad (timing only, do not publish)"
+        manifest[cid] = {"hash": key, "take": 1, "source": source}
+    else:
+        if not fresh:
+            # the plan changed (or --force): takes of the old plan must not be promotable
+            for f in os.listdir(os.path.dirname(take_path(cid, 1))):
+                if f.startswith(f"{cid}.take") and f.endswith(".mp3"):
+                    os.remove(os.path.join(os.path.dirname(take_path(cid, 1)), f))
+        want = [t for t in range(1, args.takes + 1) if not os.path.exists(take_path(cid, t))]
+        if not want:
+            print(f"{cid}: unchanged ({args.takes} take(s) on disk; --use N to switch, --force to regenerate)")
+            continue
         # at most 2 requests in flight: the API refuses a third concurrent one
         with cf.ThreadPoolExecutor(2) as ex:
-            results = list(ex.map(lambda t: eleven(cid, plan, t), range(1, args.takes + 1)))
+            results = list(ex.map(lambda t: eleven(cid, plan, t), want))
         bad = [f"take {t}: {err}" for t, _, err in results if err]
         if bad:
             C.die(f"{cid}: ElevenLabs music failed: " + "; ".join(bad))
-        to_track(results[0][1], cut)
-        source = f"ElevenLabs Music (music_v1), take 1 of {args.takes}"
-    else:
-        to_track(placeholder(cid, plan), cut)
-        source = "PLACEHOLDER synthesized chord pad (timing only, do not publish)"
-    manifest[cid] = {"hash": key, "take": 1, "source": source}
+        chosen = manifest.get(cid, {}).get("take", 1) if fresh else 1
+        if not fresh:
+            to_track(take_path(cid, 1), cut)
+        source = f"ElevenLabs Music (music_v1), take {chosen}"
+        manifest[cid] = {"hash": key, "take": chosen, "source": source}
+        if len(want) < args.takes or args.takes > 1:
+            print(f"{cid}: generated take(s) {', '.join(map(str, want))}; listen, then `npm run music -- --use N`")
     C.record_source(f"music/{cid}.wav", source)
+    save()
     names = ", ".join(f"{s['section_name']} {s['duration_ms'] / 1000:.1f} s" for s in plan["sections"])
     print(f"{cid}: {C.duration(dst):.2f} s  {source}  [{names}]")
 

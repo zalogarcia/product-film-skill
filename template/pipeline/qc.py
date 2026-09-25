@@ -12,7 +12,11 @@ For out/master.mp4, out/vertical.mp4 and out/teaser.mp4 (those that exist):
   - integrated loudness within loudness.lufsTolerance of loudness.targetLufs,
     and true peak at or under loudness.truePeakMaxDb, measured on the ENCODED audio
 
-It also prints build/SOURCES.txt, so what is a placeholder is never a guess.
+It also prints where each asset THIS film uses came from (build/SOURCES.txt,
+limited to the current lines, cues, cuts and stills), and fails:
+  - with --publish, when any of those assets is a placeholder or unrecorded
+  - always, when a delivered file is older than an asset or the word
+    timings it was made from (re-run `npm run cuts`)
 """
 import argparse
 import json
@@ -76,20 +80,54 @@ for cid, (W, H, D) in expect.items():
     size = int(info["format"]["size"]) / 1e6
     print(f"file  {name}: {w}x{h}, {d:.2f} s, {size:.1f} MB, {m['I']} LUFS, true peak {m['TP']} dBFS")
 
+# provenance: only the assets this timeline and config actually use
+lines = [L["id"] for L in tl["lines"]]
+stills_json = os.path.join(C.ROOT, "public", "generated", "stills.json")
+stills = json.load(open(stills_json)) if os.path.exists(stills_json) else []
+per_cut = {}
+for cid in tl["cuts"]:
+    per_cut[cid] = ([f"voice/{i}.wav" for i in lines if next(L for L in tl["lines"] if L["id"] == i)["at"] < tl["cuts"][cid]["dur"]]
+                    + [f"sfx/{q['name']}.wav" for q in tl["cuts"][cid]["sfx"]] + [f"music/{cid}.wav"])
+if "vertical" in per_cut:
+    per_cut["teaser"] = per_cut["vertical"]
+assets = sorted({a for v in per_cut.values() for a in v} | {f"stills/{n}.png" for n in stills})
+rows = {}
 src = C.build("SOURCES.txt")
-placeholders = []
 if os.path.exists(src):
-    print("sources (build/SOURCES.txt):")
     for line in open(src, encoding="utf-8"):
-        print("      " + line.rstrip())
-        if "PLACEHOLDER" in line:
-            placeholders.append(line.split("\t")[0])
-if placeholders:
-    msg = f"{len(placeholders)} placeholder assets: timing and layout only, NOT publishable"
+        if "\t" in line:
+            k, v = line.rstrip("\n").split("\t", 1)
+            rows[k] = v
+print("sources of the assets this film uses (build/SOURCES.txt):")
+placeholders, unknown = [], []
+for a in assets:
+    v = rows.get(a)
+    print(f"      {a}\t{v or 'UNKNOWN (no record)'}")
+    if v is None:
+        unknown.append(a)
+    elif "PLACEHOLDER" in v:
+        placeholders.append(a)
+if placeholders or unknown:
+    msg = (f"{len(placeholders)} placeholder and {len(unknown)} unrecorded assets: "
+           "timing and layout only, NOT publishable")
     if args.publish:
         fails.append(msg)
     else:
         print(f"WARN  {msg}")
+
+# staleness: a delivered file older than anything it was made from
+words_json = os.path.join(C.ROOT, "public", "generated", "words.json")
+for cid, inputs in per_cut.items():
+    p = C.out(f"{cid}.mp4")
+    if not os.path.exists(p):
+        continue
+    t_out = os.path.getmtime(p)
+    paths = [C.build(*a.split("/")) for a in inputs] + [words_json]
+    paths += [os.path.join(C.ROOT, "public", "stills", f"{n}.png") for n in stills]
+    newer = [os.path.relpath(x, C.ROOT) for x in paths if os.path.exists(x) and os.path.getmtime(x) > t_out]
+    if newer:
+        fails.append(f"out/{cid}.mp4 is older than {', '.join(newer[:4])}{' ...' if len(newer) > 4 else ''}: "
+                     "re-run `npm run cuts`")
 if not checked:
     fails.append("no finished cuts in out/ (run `npm run cuts`)")
 for f in fails:

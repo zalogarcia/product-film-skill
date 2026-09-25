@@ -34,7 +34,7 @@ const Body: React.FC = () => {
         <End />
       </Act>
       <PlantLayer />
-      <Captions />
+      {cut.captions !== false && <Captions />}
       {a.loop && (
         <Act seg={a.loop} pad={0}>
           {/* hold the exact first frame so the platform's loop back to frame 0 is seamless */}

@@ -12,7 +12,9 @@ Fails (exit 1) when:
   - two spoken lines overlap, or sit closer than 0.1 s
   - a line runs past the end of a cut it starts in
   - a line starts inside an act but runs 0.5 s or more past it (warning)
-  - a music section is shorter than 3 s (the ElevenLabs music minimum)
+  - the music sections do not tile the cut (a gap, an overlap, or not
+    from 0 to the cut's end), or one is shorter than 3 s (the ElevenLabs
+    music minimum)
   - acts are out of order or leave a gap
   - an sfx cue names an effect that film.config.json does not define
   - a teaser segment is out of order, outside the vertical, or cuts
@@ -67,7 +69,19 @@ for cid, c in tl["cuts"].items():
         for n, s in c["acts"].items():
             if s["from"] <= L["at"] < s["to"] and end > s["to"] + 0.5:
                 warns.append(f"{cid}: {L['id']} starts in act '{n}' but runs {end - s['to']:.2f} s past it")
-    for s in c["music"]["sections"]:
+    secs = c["music"]["sections"]
+    if not secs:
+        fails.append(f"{cid}: MUSIC.sections is empty")
+    else:
+        if abs(secs[0]["from"]) > 1e-6:
+            fails.append(f"{cid}: the first music section starts at {secs[0]['from']} s, not 0")
+        for a, b in zip(secs, secs[1:]):
+            if abs(b["from"] - a["to"]) > 1e-6:
+                fails.append(f"{cid}: music section '{a['name']}' ends at {a['to']} s but '{b['name']}' starts at {b['from']} s "
+                             "(sections must tile the cut; when merging two, extend one over the other)")
+        if abs(secs[-1]["to"] - c["dur"]) > 1e-6:
+            fails.append(f"{cid}: the last music section ends at {secs[-1]['to']} s, the cut is {c['dur']} s")
+    for s in secs:
         if s["to"] - s["from"] < 3.0 - 1e-6:
             fails.append(f"{cid}: music section '{s['name']}' is {s['to'] - s['from']:.2f} s; the minimum is 3 s")
     for q in c["sfx"]:

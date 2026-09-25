@@ -13,7 +13,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 DEST="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
 while [ $# -gt 0 ]; do
   case "$1" in
-    --dest) DEST="$2"; shift 2 ;;
+    --dest) [ $# -ge 2 ] || { echo "usage: bash install.sh [--dest <skills folder>]" >&2; exit 2; }; DEST="$2"; shift 2 ;;
     *) echo "usage: bash install.sh [--dest <skills folder>]" >&2; exit 2 ;;
   esac
 done
