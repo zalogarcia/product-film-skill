@@ -63,7 +63,9 @@ for L in tl["lines"]:
         prev = w["t"]
     cps = len(L["text"]) / max(0.1, W["dur"])
     if cps > cps_max:
-        fails.append(f"{lid}: {cps:.1f} characters per second, over the limit of {cps_max}")
+        fails.append(f"{lid}: {cps:.1f} characters per second, over the limit of {cps_max} "
+                     f"(shorten the line, or slow the voice: voices.{L['who']}.settings.speed in "
+                     f"film.config.json, 0.7 to 1.2 for ElevenLabs, then `npm run voice -- --only {lid}`)")
     if W["method"] == "proportional":
         continue
     # onset check on the voice file itself: is there sound in the first 80 ms of each word?

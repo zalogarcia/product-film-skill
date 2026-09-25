@@ -89,7 +89,7 @@ npm run sfx                # ElevenLabs sound effects from the config prompts
 npm run stills             # optional OpenAI plates (skipped without a key)
 ```
 
-After ANY voice change: `npm run words`, then `npm run check:timeline`, then fix `src/timeline.ts` until it passes. A regenerated line always comes back a different length.
+After ANY voice change: `npm run words`, then `npm run check:timeline`, then fix `src/timeline.ts` until it passes. A regenerated line always comes back a different length. A voice that reads a line faster than its caption can be read fails `check:captions`: shorten the line, or slow the voice with `speed` under the speaker's `settings` in `film.config.json` (ElevenLabs accepts 0.7 to 1.2), then `npm run voice -- --only <line id>`.
 
 ### 6. Picture
 
