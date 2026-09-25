@@ -105,7 +105,7 @@ Every step is an npm script in `template/`:
 | `npm run check:captions` | Every word lights when it is heard; reading speed; nothing stale. |
 | `npm run check:claims` | Every promise is in the claims ledger with a source; no banned words. |
 | `npm run check:safe -- <cut>` | Renders a content only probe and fails anything outside the safe zone. |
-| `npm run check:final` | Format, duration, faststart, loudness and true peak of the delivered files. |
+| `npm run check:final` | Format, duration, faststart, loudness and true peak of the delivered files; fails a missing cut or one older than anything it was made from. |
 | `npm run frames -- <file>` | A contact sheet (and single frames with `--at`) to look at. |
 | `npm run studio` | Remotion Studio, to scrub the film while building scenes. |
 

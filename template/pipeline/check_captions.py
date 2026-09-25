@@ -63,9 +63,15 @@ for L in tl["lines"]:
         prev = w["t"]
     cps = len(L["text"]) / max(0.1, W["dur"])
     if cps > cps_max:
-        fails.append(f"{lid}: {cps:.1f} characters per second, over the limit of {cps_max} "
-                     f"(shorten the line, or slow just this line: add `speed: 0.9` to {lid} in src/timeline.ts, "
-                     f"0.7 to 1.2, then `npm run voice -- --only {lid}`)")
+        # the speed this line is voiced at now: its own, else its speaker's, else 1.0
+        eff = L.get("speed")
+        if eff is None:
+            eff = ((cfg.get("voices", {}).get(L["who"], {}).get("settings") or {}).get("speed")) or 1.0
+        slower = max(0.7, round(eff - 0.1, 2))
+        fix = (f"or slow just this line: set `speed: {slower}` on {lid} in src/timeline.ts (it is voiced at {eff} now; "
+               f"0.7 to 1.2), then `npm run voice -- --only {lid}`" if slower < eff else
+               f"it is already voiced at {eff}, the slowest ElevenLabs allows is 0.7")
+        fails.append(f"{lid}: {cps:.1f} characters per second, over the limit of {cps_max} (shorten the line, {fix})")
     if W["method"] == "proportional":
         continue
     # onset check on the voice file itself: is there sound in the first 80 ms of each word?

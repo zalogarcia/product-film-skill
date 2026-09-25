@@ -4,7 +4,8 @@
   npm run check:final                   # every cut in out/
   npm run check:final -- --publish      # also fail if any asset is a placeholder
 
-For out/master.mp4, out/vertical.mp4 and out/teaser.mp4 (those that exist):
+For every cut in the timeline (out/master.mp4, out/vertical.mp4) and the
+teaser (out/teaser.mp4); a missing file fails:
   - one H.264 video stream, yuv420p, limited range, and one AAC stereo 48 kHz stream
   - the picture has the cut's aspect ratio (any scale) and even dimensions
   - the duration matches the timeline (teaser: the sum of its segments) to one frame
@@ -15,8 +16,10 @@ For out/master.mp4, out/vertical.mp4 and out/teaser.mp4 (those that exist):
 It also prints where each asset THIS film uses came from (build/SOURCES.txt,
 limited to the current lines, cues, cuts and stills), and fails:
   - with --publish, when any of those assets is a placeholder or unrecorded
-  - always, when a delivered file is older than an asset or the word
-    timings it was made from (re-run `npm run cuts`)
+  - always, when a delivered file is older than anything it was made from:
+    its render and mix in build/, the assets and word timings above, the
+    stills, film.config.json and every source file under src/ (re-run
+    `npm run cuts`)
 """
 import argparse
 import json
@@ -50,6 +53,7 @@ fails, checked = [], 0
 for cid, (W, H, D) in expect.items():
     p = C.out(f"{cid}.mp4")
     if not os.path.exists(p):
+        fails.append(f"out/{cid}.mp4 is missing (run `npm run cuts`)")
         continue
     checked += 1
     info = json.loads(C.run(["ffprobe", "-v", "error", "-show_streams", "-show_format", "-of", "json", p]).stdout)
@@ -117,12 +121,16 @@ if placeholders or unknown:
 
 # staleness: a delivered file older than anything it was made from
 words_json = os.path.join(C.ROOT, "public", "generated", "words.json")
+sources = [os.path.join(C.ROOT, "film.config.json")]
+for d, _, fs in os.walk(os.path.join(C.ROOT, "src")):
+    sources += [os.path.join(d, f) for f in fs if f.endswith((".ts", ".tsx"))]
 for cid, inputs in per_cut.items():
     p = C.out(f"{cid}.mp4")
     if not os.path.exists(p):
         continue
     t_out = os.path.getmtime(p)
-    paths = [C.build(*a.split("/")) for a in inputs] + [words_json]
+    paths = [C.build(*a.split("/")) for a in inputs] + [words_json, C.build("render", f"{cid}.mp4"),
+                                                         C.build("mix", f"{cid}.wav")] + sources
     paths += [os.path.join(C.ROOT, "public", "stills", f"{n}.png") for n in stills]
     newer = [os.path.relpath(x, C.ROOT) for x in paths if os.path.exists(x) and os.path.getmtime(x) > t_out]
     if newer:

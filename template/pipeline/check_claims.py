@@ -30,7 +30,7 @@ cfg = C.cfg()
 tl = C.timeline()
 ledger_path = os.path.join(C.ROOT, "film", "claims.md")
 if not os.path.exists(ledger_path):
-    C.die("no film/claims.md: write the claims ledger first (see the skill's step 2)")
+    C.die("no film/claims.md: write the claims ledger first (see the skill's step 3)")
 
 rows = {}
 for line in open(ledger_path, encoding="utf-8"):

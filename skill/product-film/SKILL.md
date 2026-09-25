@@ -156,5 +156,5 @@ Report: the three files with duration, resolution, size and loudness (from `chec
 - Retiming a scene by editing numbers inside a scene file: the captions and the mix no longer match the picture. Retime in `src/timeline.ts`.
 - Typing a claim straight into a scene: it escapes the claims check. Put every string in `COPY`.
 - Judging captions from the plan instead of the measured words: run `npm run words` after every voice change.
-- Publishing a cut while `build/SOURCES.txt` lists a placeholder: `npm run check:final -- --publish` fails it.
+- Publishing a cut while an asset it uses is a placeholder, or a cut older than its inputs: `npm run check:final -- --publish` fails both.
 - Grading your own film: the review goes to a reviewer that did not build it.

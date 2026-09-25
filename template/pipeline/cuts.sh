@@ -1,5 +1,6 @@
 #!/bin/bash
-# Render, mix and finish all three cuts: 16:9 master, 9:16 vertical, teaser.
+# Render, mix and finish every cut in src/timeline.ts CUTS (the example has a
+# 16:9 master and a 9:16 vertical), then the teaser cut from the vertical.
 #
 #   npm run cuts                   full resolution
 #   npm run cuts -- --scale 0.5    half resolution (a fast preview of everything)
@@ -16,12 +17,15 @@ while [ $# -gt 0 ]; do
     *) echo "usage: npm run cuts -- [--scale N]" >&2; exit 2 ;;
   esac
 done
-for CUT in master vertical; do
+CUTS="$(node --no-warnings --experimental-strip-types pipeline/timeline-json.mjs |
+  python3 -c 'import json, sys; c = json.load(sys.stdin)["cuts"]; print(" ".join(list(c) + (["teaser"] if "vertical" in c else [])))')"
+for CUT in $CUTS; do
+  [ "$CUT" = teaser ] && continue
   node pipeline/render.cjs "$CUT" --scale "$SCALE"
   python3 pipeline/mix.py "$CUT"
 done
-python3 pipeline/teaser.py
-for CUT in master vertical teaser; do
+case " $CUTS " in *" teaser "*) python3 pipeline/teaser.py ;; esac
+for CUT in $CUTS; do
   bash pipeline/finish.sh "$CUT"
 done
 python3 pipeline/qc.py

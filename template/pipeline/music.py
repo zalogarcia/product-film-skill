@@ -145,6 +145,12 @@ if args.use:
     missing = [c["id"] for c in cuts if not os.path.exists(take_path(c["id"], args.use))]
     if missing:
         C.die(f"no take {args.use} for: {', '.join(missing)} (generate it with --takes {args.use}, or pass --cut)")
+    # takes exist only for ElevenLabs; they belong to the plan they were made from
+    stale = [c["id"] for c in cuts
+             if manifest.get(c["id"], {}).get("hash") != hashlib.sha1(json.dumps(["elevenlabs", plan_for(c)]).encode()).hexdigest()]
+    if stale:
+        C.die(f"the music plan changed since the takes were made for: {', '.join(stale)}. "
+              "Run `npm run music` to score the new plan (it retires the old takes), then pick a take.")
     for cut in cuts:
         cid = cut["id"]
         to_track(take_path(cid, args.use), cut)
