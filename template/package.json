@@ -1,0 +1,46 @@
+{
+  "name": "product-film-starter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A Remotion starter for product films: one timeline drives picture, captions and the audio mix; three cuts (16:9 master, 9:16 vertical, teaser).",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.6"
+  },
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "timeline": "node --no-warnings --experimental-strip-types pipeline/timeline-json.mjs",
+    "whisper-model": "bash pipeline/get-whisper-model.sh",
+    "voice": "python3 pipeline/voice.py",
+    "words": "python3 pipeline/words.py",
+    "music": "python3 pipeline/music.py",
+    "sfx": "python3 pipeline/sfx.py",
+    "stills": "python3 pipeline/stills.py",
+    "render": "node pipeline/render.cjs",
+    "mix": "python3 pipeline/mix.py",
+    "finish": "bash pipeline/finish.sh",
+    "teaser": "python3 pipeline/teaser.py",
+    "cuts": "bash pipeline/cuts.sh",
+    "check:timeline": "python3 pipeline/check_timeline.py",
+    "check:captions": "python3 pipeline/check_captions.py",
+    "check:claims": "python3 pipeline/check_claims.py",
+    "check:safe": "python3 pipeline/check_safe.py",
+    "check:final": "python3 pipeline/qc.py",
+    "frames": "python3 pipeline/contact.py",
+    "example": "bash pipeline/example.sh"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.487",
+    "@remotion/cli": "4.0.487",
+    "@remotion/renderer": "4.0.487",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.487"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
+    "typescript": "5.8.3"
+  }
+}

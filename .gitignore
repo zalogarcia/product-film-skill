@@ -1,0 +1,12 @@
+node_modules/
+template/build/
+template/out/
+template/models/
+template/public/generated/
+template/public/stills/
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+.env
+.env.*

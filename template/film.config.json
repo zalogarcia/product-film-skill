@@ -1,0 +1,88 @@
+{
+  "title": "Fernwise example film",
+  "buildDir": "build",
+  "outDir": "out",
+
+  "voices": {
+    "narrator": {
+      "elevenlabsVoiceEnv": "ELEVENLABS_VOICE_NARRATOR",
+      "elevenlabsModel": "eleven_multilingual_v2",
+      "settings": {
+        "stability": 0.5,
+        "similarity_boost": 0.75,
+        "style": 0.0,
+        "use_speaker_boost": true
+      },
+      "sayVoice": "Samantha",
+      "chain": "clean",
+      "gainDb": 0
+    }
+  },
+
+  "chains": {
+    "clean": "highpass=f=80,acompressor=threshold=-22dB:ratio=2:attack=8:release=120,equalizer=f=3000:t=q:w=1.2:g=1.5",
+    "phone": "highpass=f=300,lowpass=f=3400,equalizer=f=1500:t=q:w=1:g=3",
+    "room": "highpass=f=90,equalizer=f=3000:t=q:w=1.2:g=1.5"
+  },
+
+  "sfx": {
+    "notify": {
+      "prompt": "A gentle modern phone notification chime, one soft bell tone with a short tail",
+      "seconds": 1.0,
+      "placeholder": "chime"
+    },
+    "whoosh": {
+      "prompt": "A fast smooth airy camera whoosh, short and clean, modern motion graphics",
+      "seconds": 0.8,
+      "placeholder": "whoosh"
+    },
+    "tick": {
+      "prompt": "A tiny crisp user interface tick, a gentle checkbox click, very short",
+      "seconds": 0.5,
+      "placeholder": "click"
+    },
+    "hit": {
+      "prompt": "A deep soft cinematic impact with a warm sub boom and a long clean tail, restrained",
+      "seconds": 2.5,
+      "placeholder": "hit"
+    }
+  },
+
+  "stills": {
+    "windowsill": {
+      "prompt": "Cinematic photograph of a sunny apartment windowsill in the morning with three potted houseplants, a fern, a monstera and a pothos, soft warm light, shallow depth of field, no people, no text, no logos, subtle film grain.",
+      "size": "1536x1024",
+      "quality": "medium"
+    }
+  },
+
+  "loudness": {
+    "targetLufs": -14.0,
+    "truePeakMaxDb": -1.0,
+    "limiterCeiling": 0.708,
+    "lufsTolerance": 1.0
+  },
+
+  "safeZones": {
+    "vertical": { "x0": 60, "x1": 930, "y0": 250, "y1": 1520 },
+    "master": { "x0": 96, "x1": 1824, "y0": 54, "y1": 1026 }
+  },
+
+  "captions": {
+    "maxCharsPerSecond": 20,
+    "silenceDb": -30
+  },
+
+  "bannedWords": [
+    "LLM",
+    "API",
+    "tokens",
+    "leverage",
+    "seamless",
+    "revolutionize",
+    "unlock",
+    "elevate",
+    "AI-powered",
+    "synergy"
+  ]
+}
