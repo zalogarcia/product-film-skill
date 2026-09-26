@@ -1,0 +1,58 @@
+{
+  "impact-sounds": {
+    "name": "Impact Sounds (1.0)",
+    "page": "https://kenney.nl/assets/impact-sounds",
+    "zip": "https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip",
+    "zipSha256": "029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8",
+    "license": "CC0-1.0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "casino-audio": {
+    "name": "Casino Audio (1.1)",
+    "page": "https://kenney.nl/assets/casino-audio",
+    "zip": "https://kenney.nl/media/pages/assets/casino-audio/2472606a04-1721639069/kenney_casino-audio.zip",
+    "zipSha256": "f36250766ac5bc378c13708ddf12a23a8e54a3251f8d482c7536e51b5dbafa18",
+    "license": "CC0-1.0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "interface-sounds": {
+    "name": "Interface Sounds (1.0)",
+    "page": "https://kenney.nl/assets/interface-sounds",
+    "zip": "https://kenney.nl/media/pages/assets/interface-sounds/fa43c1dd4d-1677589452/kenney_interface-sounds.zip",
+    "zipSha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+    "license": "CC0-1.0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "ui-audio": {
+    "name": "UI SFX Set",
+    "page": "https://kenney.nl/assets/ui-audio",
+    "zip": "https://kenney.nl/media/pages/assets/ui-audio/490d233f68-1677590494/kenney_ui-audio.zip",
+    "zipSha256": "946fc23a63d535d693eb31b2eabb80c8c28d6351e2186b344ceb71b2cb1d5eb6",
+    "license": "CC0-1.0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "digital-audio": {
+    "name": "Digital Audio",
+    "page": "https://kenney.nl/assets/digital-audio",
+    "zip": "https://kenney.nl/media/pages/assets/digital-audio/216eac4753-1677590265/kenney_digital-audio.zip",
+    "zipSha256": "24e6ce28b76a6d8c89cff4d331e0965ff5c3de8a73c612028e9d363cc64e4f06",
+    "license": "CC0-1.0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "sci-fi-sounds": {
+    "name": "Sci-Fi Sounds (1.0)",
+    "page": "https://kenney.nl/assets/sci-fi-sounds",
+    "zip": "https://kenney.nl/media/pages/assets/sci-fi-sounds/6b296f9ecf-1677589334/kenney_sci-fi-sounds.zip",
+    "zipSha256": "119340f351a5098ad814f78719438c0da355a9ce8a4c8a3af6a8d48aa3d49e04",
+    "license": "CC0-1.0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/"
+  },
+  "rpg-audio": {
+    "name": "RPG Audio",
+    "page": "https://kenney.nl/assets/rpg-audio",
+    "zip": "https://kenney.nl/media/pages/assets/rpg-audio/8e99002d76-1677590336/kenney_rpg-audio.zip",
+    "zipSha256": "6dbeaf8544da958d8f2adcb4a4a4b76c1ade34a05f8ab9edccd327da7375f38b",
+    "license": "CC0-1.0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/"
+  }
+}

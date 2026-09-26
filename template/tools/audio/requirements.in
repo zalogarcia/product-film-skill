@@ -1,0 +1,7 @@
+# Top level dependencies of the optional audio tools (beat analysis, sound effect rating).
+# The exact pins and hashes live in requirements.lock.txt; regenerate it with
+# `bash tools/audio/setup.sh --relock`.
+librosa
+numpy
+scipy
+soundfile

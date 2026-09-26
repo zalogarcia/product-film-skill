@@ -4,6 +4,8 @@ template/out/
 template/models/
 template/public/generated/
 template/public/stills/
+template/sfx-library/
+.venv/
 __pycache__/
 *.pyc
 .DS_Store

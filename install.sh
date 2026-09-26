@@ -5,7 +5,8 @@
 #   bash install.sh --dest <skills folder> -> <skills folder>/product-film
 #
 # Copies skill/product-film (SKILL.md and its references) and the starter
-# project in template/ (without node_modules, renders or generated files)
+# project in template/ (without node_modules, renders, generated files, the
+# optional audio venv or a downloaded sound library)
 # into the skill's folder, so the skill keeps working if this clone is moved
 # or deleted. Re-running it replaces the installed copy of the template.
 set -euo pipefail
@@ -24,7 +25,8 @@ rm -rf "$T/template"
 mkdir -p "$T/template"
 (cd "$HERE/template" && tar cf - \
   --exclude ./node_modules --exclude ./build --exclude ./out --exclude ./models \
-  --exclude ./public/generated --exclude ./public/stills --exclude __pycache__ --exclude .DS_Store .) \
+  --exclude ./public/generated --exclude ./public/stills --exclude ./sfx-library \
+  --exclude .venv --exclude __pycache__ --exclude .DS_Store .) \
   | (cd "$T/template" && tar xf -)
 echo "installed the product-film skill at $T"
 echo "start a film:  cp -R \"$T/template\" my-film && cd my-film && npm ci && npm run example"

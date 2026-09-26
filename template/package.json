@@ -29,7 +29,10 @@
     "check:safe": "python3 pipeline/check_safe.py",
     "check:final": "python3 pipeline/qc.py",
     "frames": "python3 pipeline/contact.py",
-    "example": "bash pipeline/example.sh"
+    "example": "bash pipeline/example.sh",
+    "test": "node --no-warnings --experimental-strip-types --test tools/audio/beatSync.test.ts",
+    "beats": "bash tools/audio/beats.sh",
+    "snap": "node --no-warnings --experimental-strip-types tools/audio/snap.ts"
   },
   "dependencies": {
     "@remotion/bundler": "4.0.487",
