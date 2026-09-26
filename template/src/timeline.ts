@@ -257,6 +257,23 @@ export const MUSIC = {
   ],
 };
 
+/* ----------------------------------------------------------------- poster */
+
+/**
+ * The poster: a SETTLED moment (type fully in, not mid transition) on each
+ * cut's own clock, the teaser's on the teaser's. `npm run finish` bakes that
+ * frame into frame 0 of the delivered file, because X, Slack, Discord and
+ * most players show frame 0 as the thumbnail and ignore cover art. On
+ * playback it shows for one frame (and on the vertical once per loop), so
+ * pick a moment of the opening: the hook with its type in. At least one
+ * frame in and before the last frame; `npm run check:timeline` checks it.
+ */
+export const POSTER: Record<CutId | "teaser", number> = {
+  master: 3.5,
+  vertical: 3.5,
+  teaser: 2.5,
+};
+
 /* ----------------------------------------------------------------- teaser */
 
 /**

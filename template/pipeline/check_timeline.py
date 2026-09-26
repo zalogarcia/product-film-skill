@@ -19,6 +19,9 @@ Fails (exit 1) when:
   - an sfx cue names an effect that film.config.json does not define
   - a teaser segment is out of order, outside the vertical, or cuts
     inside a spoken word (40 ms margin)
+  - a cut (or the teaser) has no POSTER moment, or it is not a frame from 1
+    to the cut's last frame (a warning when it sits within 8 frames of an
+    act edge, where the acts crossfade)
 """
 import json
 import os
@@ -110,6 +113,25 @@ for i, s in enumerate(tl["teaser"]):
         for t0, t1, w, lid in spoken_words:
             if t0 + 0.04 < edge < t1 - 0.04:
                 fails.append(f"teaser segment {i + 1} edge {edge:.2f} s cuts inside '{w}' ({lid}, {t0:.2f} to {t1:.2f} s)")
+
+# poster: every delivered cut names a frame to bake into its frame 0
+durs = {cid: c["dur"] for cid, c in tl["cuts"].items()}
+if V:
+    durs["teaser"] = sum(round(s["to"] * fps) / fps - round(s["from"] * fps) / fps for s in tl["teaser"])
+poster = tl.get("poster") or {}
+for cid, d in durs.items():
+    p = poster.get(cid)
+    if not isinstance(p, (int, float)):
+        fails.append(f"POSTER has no moment for {cid} (src/timeline.ts)")
+        continue
+    k, n = C.poster_frame(p, fps), round(d * fps)
+    if k < 1 or k > n - 1:
+        fails.append(f"POSTER.{cid} is {p} s, frame {k}; it must be a frame from 1 to {n - 1} of the {d:.2f} s {cid}")
+        continue
+    edges = sorted({e for s in tl["cuts"][cid]["acts"].values() for e in (s["from"], s["to"]) if 0 < e < d}) if cid in tl["cuts"] else []
+    for e in edges:
+        if abs(p - e) < 8 / fps:
+            warns.append(f"POSTER.{cid} is {p} s, within 8 frames of an act edge at {e} s: likely mid transition")
 
 for w in warns:
     print(f"WARN  {w}")

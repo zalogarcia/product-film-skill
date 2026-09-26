@@ -46,4 +46,5 @@ step "render, mix and finish the three cuts (scale $SCALE)"; bash pipeline/cuts.
 
 step "frame check: contact sheets to look at"
 for C in master vertical teaser; do python3 pipeline/contact.py "out/$C.mp4"; done
-printf '\nDone. Films: out/master.mp4, out/vertical.mp4, out/teaser.mp4 (placeholder audio).\n'
+printf '\nDone. Films: out/master.mp4, out/vertical.mp4, out/teaser.mp4 (placeholder voice and music),\n'
+printf 'each with its poster baked into frame 0; thumbnails: out/*.poster.png.\n'

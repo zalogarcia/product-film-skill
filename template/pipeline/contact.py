@@ -7,8 +7,9 @@
 
 Writes build/frames/<name>-sheet.jpg (tiles in time order, left to right,
 top to bottom) and build/frames/<name>-<t>.png for each --at time. Look at
-every one: first frame, every act turn, every caption page, the end card,
-and on the vertical the last frame next to the first (the loop).
+every one: first frame (the poster), every act turn, every caption page,
+the end card, and on the vertical the last frame next to frame 1 (the loop;
+`--at 0.02` is frame 1, since frame 0 is the poster).
 """
 import argparse
 import math

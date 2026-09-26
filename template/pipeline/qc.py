@@ -12,6 +12,10 @@ teaser (out/teaser.mp4); a missing file fails:
   - the moov atom sits before the media (faststart, so the file plays while it loads)
   - integrated loudness within loudness.lufsTolerance of loudness.targetLufs,
     and true peak at or under loudness.truePeakMaxDb, measured on the ENCODED audio
+  - the poster step ran: frame 0 is the cut's POSTER moment (PSNR >= 40 dB
+    against that frame of build/encode/<cut>.mp4, the encode it was made
+    from), frames 1 onward match that encode (min PSNR >= 40 dB), and the
+    frame count and the audio packets are unchanged
 
 It also prints where each asset THIS film uses came from (build/SOURCES.txt,
 limited to the current lines, cues, cuts and stills), and fails:
@@ -24,6 +28,9 @@ limited to the current lines, cues, cuts and stills), and fails:
 import argparse
 import json
 import os
+import re
+import subprocess
+import tempfile
 
 import common as C
 
@@ -40,6 +47,67 @@ expect = {cid: (c["w"], c["h"], c["dur"]) for cid, c in tl["cuts"].items()}
 v = tl["cuts"].get("vertical")
 if v:
     expect["teaser"] = (v["w"], v["h"], teaser_dur)
+
+
+def psnr(a, b, graph):
+    """ffmpeg's psnr filter over `graph` (inputs a and b); returns the average, or None."""
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostdin", "-i", a, "-i", b, "-filter_complex", graph,
+                        "-f", "null", "-"], capture_output=True, text=True)
+    m = re.findall(r"average:(inf|[\d.]+)", r.stderr)
+    return None if not m else (float("inf") if m[-1] == "inf" else float(m[-1]))
+
+
+def audio_md5(path):
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostdin", "-loglevel", "error", "-i", path, "-map", "0:a:0",
+                        "-c", "copy", "-f", "md5", "-"], capture_output=True, text=True)
+    return r.stdout.strip() or None
+
+
+def nb_frames(path):
+    r = C.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=nb_frames",
+               "-of", "default=nw=1:nk=1", path])
+    return r.stdout.strip()
+
+
+def poster_fails(cid, name, path):
+    """Frame 0 is the POSTER moment and nothing else moved, measured against the encode."""
+    enc = C.build("encode", f"{cid}.mp4")
+    at = (tl.get("poster") or {}).get(cid)
+    if at is None:
+        return [f"{name}: POSTER in src/timeline.ts has no moment for {cid}"]
+    if not os.path.exists(enc):
+        return [f"{name}: no build/encode/{cid}.mp4, so the poster step never ran (`npm run finish -- {cid}`)"]
+    k = C.poster_frame(at, fps)
+    out_ = []
+    if nb_frames(path) != nb_frames(enc):
+        out_.append(f"{name}: {nb_frames(path)} frames, its encode has {nb_frames(enc)}")
+    if audio_md5(path) != audio_md5(enc):
+        out_.append(f"{name}: the audio differs from build/encode/{cid}.mp4 (the poster step must copy it)")
+    p0 = psnr(path, enc, f"[0:v]trim=end_frame=1,setpts=PTS-STARTPTS[a];"
+                         f"[1:v]trim=start_frame={k}:end_frame={k + 1},setpts=PTS-STARTPTS[b];[a][b]psnr")
+    if p0 is None or p0 < 40:
+        out_.append(f"{name}: frame 0 is not the poster (PSNR {p0} dB against frame {k} of the encode, POSTER.{cid} = {at} s): "
+                    f"run `npm run poster -- {cid}`")
+    with tempfile.TemporaryDirectory() as td:
+        stats = os.path.join(td, "psnr.log")
+        subprocess.run(["ffmpeg", "-hide_banner", "-nostdin", "-loglevel", "error", "-i", path, "-i", enc,
+                        "-filter_complex", f"[0:v][1:v]psnr=stats_file={stats}", "-f", "null", "-"],
+                       capture_output=True, text=True)
+        rows = []
+        if os.path.exists(stats):
+            for line in open(stats):
+                n = re.search(r"\bn:(\d+)", line)
+                v = re.search(r"psnr_avg:(inf|[\d.]+)", line)
+                if n and v:
+                    rows.append((int(n.group(1)), float("inf") if v.group(1) == "inf" else float(v.group(1))))
+    rest = [v for n, v in rows if n >= 2]
+    worst = min(rest) if rest else None
+    if not rest or worst < 40:
+        out_.append(f"{name}: frames 1 onward differ from build/encode/{cid}.mp4 (min PSNR {worst} dB over {len(rest)} frames)")
+    if not out_:
+        print(f"poster {name}: frame 0 = frame {k} ({at} s, PSNR {p0:.1f} dB), frames 1 to {len(rest)} "
+              f"unchanged (min PSNR {worst:.1f} dB), audio copied")
+    return out_
 
 
 def moov_first(path):
@@ -83,6 +151,7 @@ for cid, (W, H, D) in expect.items():
         fails.append(f"{name}: true peak {m['TP']} dBFS, limit {L['truePeakMaxDb']}")
     size = int(info["format"]["size"]) / 1e6
     print(f"file  {name}: {w}x{h}, {d:.2f} s, {size:.1f} MB, {m['I']} LUFS, true peak {m['TP']} dBFS")
+    fails += poster_fails(cid, name, p)
 
 # provenance: only the assets this timeline and config actually use
 lines = [L["id"] for L in tl["lines"]]
@@ -130,7 +199,8 @@ for cid, inputs in per_cut.items():
         continue
     t_out = os.path.getmtime(p)
     paths = [C.build(*a.split("/")) for a in inputs] + [words_json, C.build("render", f"{cid}.mp4"),
-                                                         C.build("mix", f"{cid}.wav")] + sources
+                                                         C.build("mix", f"{cid}.wav"),
+                                                         C.build("encode", f"{cid}.mp4")] + sources
     paths += [os.path.join(C.ROOT, "public", "stills", f"{n}.png") for n in stills]
     newer = [os.path.relpath(x, C.ROOT) for x in paths if os.path.exists(x) and os.path.getmtime(x) > t_out]
     if newer:

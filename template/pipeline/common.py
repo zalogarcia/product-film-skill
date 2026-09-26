@@ -170,6 +170,13 @@ def no_keys():
     return os.environ.get("PF_NO_KEYS") == "1"
 
 
+def poster_frame(t, fps):
+    """The frame pipeline/poster-frame0.sh takes for `--at t`: it rounds half
+    up (awk), where Python's round() rounds half to even, so every gate that
+    names the poster's frame uses this."""
+    return math.floor(t * fps + 0.5)
+
+
 def record_source(asset, source):
     """Append one line to build/SOURCES.txt: where every asset came from, so a
     placeholder can never be mistaken for a publishable asset."""

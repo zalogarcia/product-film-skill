@@ -33,6 +33,7 @@ process.stdout.write(
       cuts,
       music: { global: t.MUSIC.global, avoid: t.MUSIC.avoid, duckDb: t.MUSIC.duckDb },
       teaser: t.TEASER,
+      poster: t.POSTER,
     },
     null,
     1,

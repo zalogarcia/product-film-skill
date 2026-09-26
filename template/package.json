@@ -20,6 +20,7 @@
     "render": "node pipeline/render.cjs",
     "mix": "python3 pipeline/mix.py",
     "finish": "bash pipeline/finish.sh",
+    "poster": "bash pipeline/poster.sh",
     "teaser": "python3 pipeline/teaser.py",
     "cuts": "bash pipeline/cuts.sh",
     "check:timeline": "python3 pipeline/check_timeline.py",
