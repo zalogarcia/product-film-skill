@@ -28,21 +28,25 @@
 
   "sfx": {
     "notify": {
+      "file": "assets/sfx/kenney/interface-sounds/confirmation_002.ogg",
       "prompt": "A gentle modern phone notification chime, one soft bell tone with a short tail",
       "seconds": 1.0,
       "placeholder": "chime"
     },
     "whoosh": {
+      "file": "assets/sfx/kenney/casino-audio/card-slide-2.ogg",
       "prompt": "A fast smooth airy camera whoosh, short and clean, modern motion graphics",
       "seconds": 0.8,
       "placeholder": "whoosh"
     },
     "tick": {
+      "file": "assets/sfx/kenney/interface-sounds/select_001.ogg",
       "prompt": "A tiny crisp user interface tick, a gentle checkbox click, very short",
       "seconds": 0.5,
       "placeholder": "click"
     },
     "hit": {
+      "file": "assets/sfx/kenney/impact-sounds/impactSoft_heavy_002.ogg",
       "prompt": "A deep soft cinematic impact with a warm sub boom and a long clean tail, restrained",
       "seconds": 2.5,
       "placeholder": "hit"

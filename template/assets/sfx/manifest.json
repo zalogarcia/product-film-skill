@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "about": "Every sound under assets/sfx/ with its source, licence and SHA-256. `npm run sfx` records a file's source in build/SOURCES.txt from this list; a file that is not listed, or whose SHA-256 differs, is recorded as LICENCE UNKNOWN, which `npm run check:final -- --publish` refuses. Ratings come from tools/audio/rate_sfx.py over the full library (tools/audio/fetch_kenney.py).",
+  "files": {
+    "kenney/interface-sounds/confirmation_002.ogg": {
+      "author": "Kenney (www.kenney.nl)",
+      "pack": "Interface Sounds (1.0)",
+      "page": "https://kenney.nl/assets/interface-sounds",
+      "zip": "https://kenney.nl/media/pages/assets/interface-sounds/fa43c1dd4d-1677589452/kenney_interface-sounds.zip",
+      "zipSha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+      "license": "CC0-1.0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseFile": "kenney/interface-sounds/License.txt",
+      "sha256": "33b17a9a9a2397c62b285c52c33a907fdffb476909c99e42dde603f6a7a8b12c",
+      "usedFor": "notify",
+      "role": "chime",
+      "why": "A clean two tone confirmation chime: tonal (flatness 0.000), 2.3 kHz centroid, rings about 0.3 s after a 12 ms attack, low high frequency risk. Replaces the synthesized chime placeholder.",
+      "rating": {
+        "score": 1.0,
+        "rank": 1,
+        "tiedWith": 3,
+        "of": 237,
+        "labels": {
+          "brightness": "balanced",
+          "highFrequencyRisk": "low",
+          "envelope": "continuous"
+        },
+        "features": {
+          "duration": 0.539,
+          "peakDb": -0.96,
+          "attackS": 0.012,
+          "peakAtS": 0.012,
+          "decayTo10S": 0.29,
+          "centroidP50Hz": 2349.2,
+          "flatness": 0.0,
+          "energyLow": 0.0004,
+          "energyHigh": 0.042
+        }
+      }
+    },
+    "kenney/casino-audio/card-slide-2.ogg": {
+      "author": "Kenney (www.kenney.nl)",
+      "pack": "Casino Audio (1.1)",
+      "page": "https://kenney.nl/assets/casino-audio",
+      "zip": "https://kenney.nl/media/pages/assets/casino-audio/2472606a04-1721639069/kenney_casino-audio.zip",
+      "zipSha256": "f36250766ac5bc378c13708ddf12a23a8e54a3251f8d482c7536e51b5dbafa18",
+      "license": "CC0-1.0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseFile": "kenney/casino-audio/License.txt",
+      "sha256": "e674a1679ec87b507047fe012d068ad2c412125f56186f0e732684705c2a6888",
+      "usedFor": "whoosh",
+      "role": "whoosh",
+      "why": "A quick card slide: a soft swish that peaks 75 ms in and falls away, low high frequency risk. Kenney has no airy whoosh; the higher scored rows are a book being set down and leather handling, so this is a judgment pick. Replaces the synthesized whoosh placeholder.",
+      "rating": {
+        "score": 0.997,
+        "rank": 5,
+        "tiedWith": 0,
+        "of": 341,
+        "labels": {
+          "brightness": "balanced",
+          "highFrequencyRisk": "low",
+          "envelope": "textured"
+        },
+        "features": {
+          "duration": 0.584,
+          "peakDb": -1.72,
+          "attackS": 0.058,
+          "peakAtS": 0.075,
+          "decayTo10S": 0.029,
+          "centroidP50Hz": 3060.8,
+          "flatness": 0.0009,
+          "energyLow": 0.797,
+          "energyHigh": 0.071
+        }
+      }
+    },
+    "kenney/interface-sounds/select_001.ogg": {
+      "author": "Kenney (www.kenney.nl)",
+      "pack": "Interface Sounds (1.0)",
+      "page": "https://kenney.nl/assets/interface-sounds",
+      "zip": "https://kenney.nl/media/pages/assets/interface-sounds/fa43c1dd4d-1677589452/kenney_interface-sounds.zip",
+      "zipSha256": "f2193d072726d6758a5f7871b2dcc54dcce0d5c35c6f0a62f92549b327c81232",
+      "license": "CC0-1.0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseFile": "kenney/interface-sounds/License.txt",
+      "sha256": "aec0c31ea934a35936ae0d2ab8fac8123c93aa5647f935853a58dbaf90278b7a",
+      "usedFor": "tick",
+      "role": "click",
+      "why": "A 43 ms tonal UI select blip at 2.5 kHz, low high frequency risk: the closest real sound to the synthesized click it replaces, and it cuts through music at a low level.",
+      "rating": {
+        "score": 1.0,
+        "rank": 1,
+        "tiedWith": 5,
+        "of": 66,
+        "labels": {
+          "brightness": "balanced",
+          "highFrequencyRisk": "low",
+          "envelope": "transient"
+        },
+        "features": {
+          "duration": 0.043,
+          "peakDb": -1.13,
+          "attackS": 0.012,
+          "peakAtS": 0.012,
+          "decayTo10S": 0.017,
+          "centroidP50Hz": 2456.4,
+          "flatness": 0.0003,
+          "energyLow": 0.0003,
+          "energyHigh": 0.0245
+        }
+      }
+    },
+    "kenney/impact-sounds/impactSoft_heavy_002.ogg": {
+      "author": "Kenney (www.kenney.nl)",
+      "pack": "Impact Sounds (1.0)",
+      "page": "https://kenney.nl/assets/impact-sounds",
+      "zip": "https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip",
+      "zipSha256": "029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8",
+      "license": "CC0-1.0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseFile": "kenney/impact-sounds/License.txt",
+      "sha256": "d130ae541951243d3f6ed963d0057450a445ffe117fbf9a084d34eb1635cb563",
+      "usedFor": "hit",
+      "role": "hit",
+      "why": "A soft heavy thud with all its energy under 250 Hz (89 Hz centroid) and the longest tail of the soft heavy impacts (0.16 s to -20 dB). Shorter than the synthesized 2.5 s hit it replaces; the music carries the end card's tail.",
+      "rating": {
+        "score": 1.0,
+        "rank": 1,
+        "tiedWith": 20,
+        "of": 307,
+        "labels": {
+          "brightness": "warm",
+          "highFrequencyRisk": "low",
+          "envelope": "transient"
+        },
+        "features": {
+          "duration": 0.572,
+          "peakDb": -0.88,
+          "attackS": 0.012,
+          "peakAtS": 0.012,
+          "decayTo10S": 0.157,
+          "centroidP50Hz": 89.5,
+          "flatness": 0.0,
+          "energyLow": 0.998,
+          "energyHigh": 0.0
+        }
+      }
+    }
+  }
+}

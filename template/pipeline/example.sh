@@ -2,10 +2,11 @@
 # The example film, end to end, with NO paid APIs (PF_NO_KEYS=1):
 #   voice    PLACEHOLDER: macOS `say`, else espeak-ng, else silence
 #   music    PLACEHOLDER: a synthesized chord pad, one chord per act
-#   sfx      PLACEHOLDER: synthesized chime, whoosh, click and hit
+#   sfx      CC0 sounds by Kenney from assets/sfx (real, publishable)
 #   stills   skipped (the film renders without plates)
 # Everything placeholder is listed in build/SOURCES.txt. The run proves the
-# pipeline and the layout; it is not a film to publish.
+# pipeline and the layout; it is not a film to publish. It needs no Python
+# packages: the optional audio venv (tools/audio) is never touched.
 #
 #   npm run example                  half resolution (fast)
 #   npm run example -- --scale 1     full resolution

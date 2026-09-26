@@ -19,7 +19,8 @@ teaser (out/teaser.mp4); a missing file fails:
 
 It also prints where each asset THIS film uses came from (build/SOURCES.txt,
 limited to the current lines, cues, cuts and stills), and fails:
-  - with --publish, when any of those assets is a placeholder or unrecorded
+  - with --publish, when any of those assets is a placeholder, unrecorded,
+    or a sound file whose licence is unknown (not in assets/sfx/manifest.json)
   - always, when a delivered file is older than anything it was made from:
     its render and mix in build/, the assets and word timings above, the
     stills, film.config.json and every source file under src/ (re-run
@@ -178,10 +179,10 @@ for a in assets:
     print(f"      {a}\t{v or 'UNKNOWN (no record)'}")
     if v is None:
         unknown.append(a)
-    elif "PLACEHOLDER" in v:
+    elif "PLACEHOLDER" in v or "LICENCE UNKNOWN" in v:
         placeholders.append(a)
 if placeholders or unknown:
-    msg = (f"{len(placeholders)} placeholder and {len(unknown)} unrecorded assets: "
+    msg = (f"{len(placeholders)} placeholder or unlicensed and {len(unknown)} unrecorded assets: "
            "timing and layout only, NOT publishable")
     if args.publish:
         fails.append(msg)

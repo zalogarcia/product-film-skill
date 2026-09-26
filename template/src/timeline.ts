@@ -180,15 +180,19 @@ export const COPY = {
 
 /* ------------------------------------------------------------------ sound */
 
-/** A sound effect cue. `name` is a key of `sfx` in film.config.json. */
+/**
+ * A sound effect cue. `name` is a key of `sfx` in film.config.json. The
+ * example's gains are matched to the CC0 sounds in assets/sfx/ (each plays at
+ * the loudness its synthesized placeholder had); a new sound needs its own.
+ */
 export type SfxCue = { name: string; at: number; gainDb: number };
 
 export const sfxFor = (c: CutSpec): SfxCue[] => {
   const cues: SfxCue[] = [
-    { name: "notify", at: EV.nudgeLands + 0.1, gainDb: -14 },
-    { name: "whoosh", at: EV.listIn - 0.15, gainDb: -20 },
-    { name: "tick", at: EV.tick, gainDb: -16 },
-    { name: "hit", at: EV.endHit, gainDb: -9 },
+    { name: "notify", at: EV.nudgeLands + 0.1, gainDb: -23 },
+    { name: "whoosh", at: EV.listIn + 0.1, gainDb: -39 },
+    { name: "tick", at: EV.tick, gainDb: -21 },
+    { name: "hit", at: EV.endHit, gainDb: -11 },
   ];
   return cues.filter((q) => q.at < c.dur);
 };

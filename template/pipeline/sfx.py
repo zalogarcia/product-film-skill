@@ -5,9 +5,16 @@
   npm run sfx -- --force       # regenerate (spends credits)
 
 Engines, in order:
-  1. ElevenLabs sound generation, when ELEVENLABS_API_KEY is set and
+  1. A sound file, when the entry names one (`file`, a path in the project),
+     for example the CC0 Kenney sounds in assets/sfx/. Its source and licence
+     come from assets/sfx/manifest.json, matched by SHA-256; a file that is
+     not listed there (or differs from the listed one) is recorded as
+     LICENCE UNKNOWN, which `npm run check:final -- --publish` refuses.
+     Remove `file` to generate the effect from `prompt` instead (`seconds`
+     applies to the generated effects only; a file plays at its own length).
+  2. ElevenLabs sound generation, when ELEVENLABS_API_KEY is set and
      PF_NO_KEYS is not 1 (text prompt and length from the config).
-  2. Placeholder: a synthesized stand in made with ffmpeg (a chime, a
+  3. Placeholder: a synthesized stand in made with ffmpeg (a chime, a
      whoosh, a click or a low hit, picked by the entry's `placeholder`).
      Labelled in build/SOURCES.txt; for timing only.
 
@@ -31,6 +38,30 @@ C.need("ffmpeg")
 man_path = C.build("sfx", "manifest.json")
 manifest = json.load(open(man_path)) if os.path.exists(man_path) else {}
 keyed = not C.no_keys() and bool(os.environ.get("ELEVENLABS_API_KEY"))
+LIB = os.path.join(C.ROOT, "assets", "sfx")
+listed = json.load(open(os.path.join(LIB, "manifest.json"))).get("files", {}) \
+    if os.path.exists(os.path.join(LIB, "manifest.json")) else {}
+
+
+def sha256(path):
+    with open(path, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()
+
+
+def file_path(name, spec):
+    src = os.path.join(C.ROOT, spec["file"])
+    if not os.path.isfile(src):
+        C.die(f"sfx '{name}': no such file {spec['file']} (film.config.json sfx.{name}.file)")
+    return src
+
+
+def from_file(name, spec, dst):
+    src = file_path(name, spec)
+    C.ffmpeg("-i", src, "-ac", "2", "-ar", "48000", "-c:a", "pcm_s24le", dst)
+    m = listed.get(os.path.relpath(os.path.abspath(src), LIB).replace(os.sep, "/"))
+    if m and m.get("sha256") == sha256(src):
+        return f"{m['author']}, {m['pack']}, {m['license']} ({m['page']}): {spec['file']}"
+    return f"LICENCE UNKNOWN: {spec['file']} is not listed with this SHA-256 in assets/sfx/manifest.json"
 
 # ffmpeg sources for the placeholders: (lavfi source, extra filter)
 SYNTH = {
@@ -65,19 +96,25 @@ def eleven(name, spec):
 
 todo = []
 for name, spec in cfg.get("sfx", {}).items():
-    engine = "elevenlabs" if keyed else "placeholder"
-    key = hashlib.sha1(json.dumps([engine, spec]).encode()).hexdigest()
+    engine = "file" if spec.get("file") else "elevenlabs" if keyed else "placeholder"
+    # a file entry also changes when the file's bytes change
+    ident = [engine, spec] + ([sha256(file_path(name, spec))] if engine == "file" else [])
+    key = hashlib.sha1(json.dumps(ident).encode()).hexdigest()
     dst = C.build("sfx", f"{name}.wav")
     if not args.force and manifest.get(name, {}).get("hash") == key and os.path.exists(dst):
         print(f"{name}: unchanged")
         continue
-    todo.append((name, spec, key, dst))
+    todo.append((name, spec, key, dst, engine))
 
-if keyed:
+gen = [t for t in todo if t[4] == "elevenlabs"]
+got = {}
+if gen:
     with cf.ThreadPoolExecutor(2) as ex:
-        got = {n: (raw, err) for n, raw, err in ex.map(lambda t: eleven(t[0], t[1]), todo)}
-for name, spec, key, dst in todo:
-    if keyed:
+        got = {n: (raw, err) for n, raw, err in ex.map(lambda t: eleven(t[0], t[1]), gen)}
+for name, spec, key, dst, engine in todo:
+    if engine == "file":
+        source = from_file(name, spec, dst)
+    elif engine == "elevenlabs":
         raw, err = got[name]
         if err:
             C.die(f"sfx '{name}': ElevenLabs sound generation failed: {err}")
