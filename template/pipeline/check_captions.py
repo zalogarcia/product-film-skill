@@ -14,13 +14,20 @@ Fails (exit 1) when:
     the pause before a word to that word, so the caption would light early)
   - word times run backwards or past the end of the line
   - a line reads faster than captions.maxCharsPerSecond
+  - a caption page is not readable long enough (fast in, then hold): it must
+    stay settled, fully in and not leaving, at least 0.8 s when it has 1 to 3
+    words and 0.3 s per word (1.2 s minimum) when it has more. Measured frame
+    by frame on every cut that burns captions in, and on the teaser, with the
+    renderer's own paging (src/captionPages.ts)
 
 Lines marked onScreen in the timeline are not captioned, so they are only
 checked for staleness.
 """
 import argparse
 import json
+import math
 import os
+import subprocess
 
 import common as C
 
@@ -93,6 +100,29 @@ for L in tl["lines"]:
     if late:
         fails.append(f"{lid}: words lit where the voice is silent or over: {', '.join(late)}")
     notes.append(f"{lid}: {len(ws)} words, {cps:.1f} chars/s, {W['method']}")
+
+# reading time: every caption page each cut shows, sampled the way the renderer draws it
+r = subprocess.run(["node", "--no-warnings", "--experimental-strip-types", "pipeline/caption-pages.mjs"],
+                   cwd=C.ROOT, capture_output=True, text=True)
+if r.returncode != 0:
+    fails.append("could not measure the caption pages (pipeline/caption-pages.mjs):\n" + r.stderr[-1500:])
+else:
+    fps = tl["fps"]
+    pages = json.loads(r.stdout)["pages"]
+    short = 0
+    for p in pages:
+        if round(p["settled"] * fps) >= math.ceil(p["need"] * fps - 1e-6):
+            continue
+        short += 1
+        why = ("the voice leaves it too soon: shorten the line or slow it (`speed` on the line)"
+               if p["natural"] + 1e-6 < p["need"] else
+               "something cuts it short (the next line, the end of the cut, the loop or a teaser edge): give it room")
+        fails.append(f"{p['cut']}: {p['line']} caption page \"{p['text']}\" ({p['words']} words) is readable "
+                     f"{p['settled']:.2f} s, the reading time is {p['need']:.2f} s: {why}")
+    if not short:
+        cuts = sorted({p["cut"] for p in pages})
+        notes.append(f"reading time: {len(pages)} of {len(pages)} caption pages settled long enough "
+                     f"({', '.join(cuts) or 'no captioned cuts'})")
 
 for n in notes:
     print(f"ok    {n}")
