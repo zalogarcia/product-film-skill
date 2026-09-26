@@ -6,15 +6,15 @@ A [Claude Code](https://docs.claude.com/en/docs/claude-code) skill plus a [Remot
 - a 9:16 vertical (1080x1920), recomposed for phones, that loops seamlessly,
 - a short teaser cut from the vertical.
 
-Every cut burns in karaoke captions for sound off viewing (set `captions: false` on a cut in `src/timeline.ts` for a clean picture).
+Every cut burns in karaoke captions for sound off viewing (set `captions: false` on a cut in `src/timeline.ts` for a clean picture), and gets a designed poster baked into frame 0, the frame X, Slack, Discord and most players show as the thumbnail, with the same poster as a PNG for platforms that take an upload.
 
-Quality gates run before anything ships: timeline fit, caption timing, a claims check, safe zones, a frame check, loudness and format on the final files, and an independent review.
+Quality gates run before anything ships: timeline fit, caption timing and reading time, a claims check, safe zones, a frame check, the poster in frame 0, loudness and format on the final files, and an independent review.
 
 ![A frame from the example film's 16:9 master](docs/example-master.jpg)
 
 <img src="docs/example-vertical.jpg" alt="A frame from the example film's 9:16 vertical" width="270">
 
-The example is an 18 second film for Fernwise, a made up houseplant app. It renders with no API keys at all: placeholder voice, synthesized music and effects, all clearly labelled.
+The example is an 18 second film for Fernwise, a made up houseplant app. It renders with no API keys at all: a placeholder voice and synthesized music, both clearly labelled, and real CC0 sound effects by Kenney.
 
 ## What is in the repo
 
@@ -23,6 +23,8 @@ The example is an 18 second film for Fernwise, a made up houseplant app. It rend
 | `skill/product-film/SKILL.md` | The skill: the process, the commands, the gates and the traps. |
 | `skill/product-film/references/` | Craft notes and the independent review rubric. |
 | `template/` | The Remotion starter: the example film, the timeline, and the pipeline scripts. |
+| `template/assets/sfx/` | Four CC0 sound effects by Kenney, each pack's licence, the CC0 legal code, and a manifest with every file's source and SHA-256. |
+| `template/tools/audio/` | Optional tools in their own Python venv: beat analysis for beat synced reveals, and fetching and rating the full Kenney sound library. |
 | `install.sh` | Copies the skill and the starter into your Claude Code skills folder. |
 
 ## Prerequisites
@@ -37,6 +39,7 @@ The example is an 18 second film for Fernwise, a made up houseplant app. It rend
   Without either, captions fall back to proportional timing, which is fine for the demo but not for a real film.
 - **Optional, for real audio and images:** an [ElevenLabs](https://elevenlabs.io) API key and a voice of your own (voice, music, sound effects), and an [OpenAI](https://platform.openai.com) API key (background plates).
 - **Optional, for the placeholder voice:** macOS `say` (built in) or `espeak-ng` on Linux. Without either, the placeholder voice is silence of the right length.
+- **Optional, for beat sync and rating a sound library:** [uv](https://docs.astral.sh/uv/) (or Python 3.12 or newer). `bash template/tools/audio/setup.sh` builds a separate venv with librosa from a pinned lock with hashes. The example and every required step run without it.
 
 ## Install
 
@@ -64,7 +67,7 @@ npm run whisper-model   # whisper.cpp users only
 npm run example         # half resolution, no API keys; about 3 to 5 minutes
 ```
 
-The films land in `template/out/` (`master.mp4`, `vertical.mp4`, `teaser.mp4`) and contact sheets in `template/build/frames/`. `template/build/SOURCES.txt` lists where every asset came from; with no keys, everything audible is marked PLACEHOLDER. `npm run example -- --scale 1` renders at full resolution.
+The films land in `template/out/` (`master.mp4`, `vertical.mp4`, `teaser.mp4`, each with a `.poster.png` thumbnail) and contact sheets in `template/build/frames/`. `template/build/SOURCES.txt` lists where every asset came from; with no keys, the voice and the music are marked PLACEHOLDER, and the sound effects show their CC0 source. `npm run example -- --scale 1` renders at full resolution.
 
 Then, in Claude Code, in an empty folder:
 
@@ -94,20 +97,28 @@ Every step is an npm script in `template/`:
 | `npm run voice` | Voices every line (ElevenLabs, or a labelled placeholder) and trims the silence. |
 | `npm run words` | Word timings from whisper, aligned to the caption text, with pause onsets corrected. |
 | `npm run music` | A score from the timeline's music plan, one section per act (`--takes 2`, `--use N`). |
-| `npm run sfx` | Sound effects from the prompts in `film.config.json`. |
+| `npm run sfx` | Sound effects: each entry's sound file (the CC0 sounds in `assets/sfx/`), else ElevenLabs from its prompt. |
 | `npm run stills` | Optional background plates from an OpenAI image model. |
 | `npm run render -- <master or vertical>` | Renders a cut through the Remotion Node API (`--scale`, `--still`, `--probe`). |
 | `npm run mix -- <cut>` | Mixes voice, effects and music from the timeline, then sets loudness and true peak. |
 | `npm run teaser` | Cuts the teaser from the rendered vertical and its mix. |
-| `npm run finish -- <cut>` | The delivery encode, measured on the final file. |
+| `npm run finish -- <cut>` | The delivery encode, then the poster step, measured on the final file. |
+| `npm run poster -- <cut>` | Bakes the cut's `POSTER` moment into frame 0 and writes `out/<cut>.poster.png`; checks that nothing else changed. |
 | `npm run cuts` | All of the above for all three cuts, then the final check (`--scale 0.5` for previews). |
 | `npm run check:timeline` | The measured audio still fits the acts, the cuts and the teaser. |
-| `npm run check:captions` | Every word lights when it is heard; reading speed; nothing stale. |
+| `npm run check:captions` | Every word lights when it is heard; reading speed; every caption page held long enough to read (0.8 s for 1 to 3 words, else 0.3 s a word, 1.2 s minimum); nothing stale. |
 | `npm run check:claims` | Every promise is in the claims ledger with a source; no banned words. |
 | `npm run check:safe -- <cut>` | Renders a content only probe and fails anything outside the safe zone. |
-| `npm run check:final` | Format, duration, faststart, loudness and true peak of the delivered files; fails a missing cut or one older than anything it was made from. |
+| `npm run check:final` | Format, duration, faststart, loudness and true peak of the delivered files, and the poster in frame 0 with nothing else changed; fails a missing cut or one older than anything it was made from. |
 | `npm run frames -- <file>` | A contact sheet (and single frames with `--at`) to look at. |
 | `npm run studio` | Remotion Studio, to scrub the film while building scenes. |
+| `npm test` | Unit tests of the beat sync helper (Node only). |
+| `npm run beats -- <track>` | Optional: the tempo, beat grid, strong cues and pulse clarity of a music track (the audio venv). |
+| `npm run snap -- <cut>` | Optional: where the timeline's events sit against the cut's beats, and where they would land if snapped. |
+
+## Sound effects
+
+The four effects the example uses are CC0 sounds by [Kenney](https://kenney.nl), in `template/assets/sfx/` with each pack's licence file and the CC0 legal code. `npm run sfx` records each sound's source and licence in `build/SOURCES.txt`, and `npm run check:final -- --publish` refuses a sound file whose licence is not recorded. For more, `python3 tools/audio/fetch_kenney.py` downloads the full Kenney library (7 packs, 521 sounds, every zip checked against its SHA-256) and `tools/audio/rate_sfx.py` rates it for the four kinds of effect the starter uses.
 
 ## Cost
 
@@ -119,4 +130,6 @@ Remotion is not MIT licensed. It is free for individuals, for-profit companies w
 
 ## License
 
-This repository's own code and text are under the MIT license (`LICENSE`). The MIT license does not cover the bundled fonts, Figtree and IBM Plex Mono, which are under the SIL Open Font License 1.1 (license texts in `template/public/fonts/`), nor Remotion and the other npm dependencies, which keep their own licenses (Remotion's is above).
+This repository's own code and text are under the MIT license (`LICENSE`). The MIT license does not cover the bundled fonts, Figtree and IBM Plex Mono, which are under the SIL Open Font License 1.1 (license texts in `template/public/fonts/`), nor the sound effects by Kenney, which are CC0 1.0 (`template/assets/sfx/LICENSE.md`), nor Remotion and the other npm dependencies, which keep their own licenses (Remotion's is above).
+
+The beat analysis, the beat sync rules, the sound rating method, the poster step and the reading time rule adapt code and method from [brag](https://github.com/latent-spaces/brag) (MIT, Copyright (c) 2026 Shunit Haviv Hakimi); its notice is in `template/tools/audio/NOTICE-brag.md`.

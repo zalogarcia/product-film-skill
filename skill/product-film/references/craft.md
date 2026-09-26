@@ -5,7 +5,7 @@ Starting values, not laws. Each comes from studying product films and short form
 ## The hook (0 to 2 s)
 
 - Open on the problem, the product in action, or something odd. Never a logo, a title card or a "meet X" preamble.
-- Frame 0 is also the thumbnail and the frame a feed shows before it plays: readable at a quarter size, nothing important near the edges.
+- Frame 0 is also the thumbnail and the frame a feed shows before it plays: readable at a quarter size, nothing important near the edges. X, Slack, Discord and most players take it as the idle thumbnail and ignore cover art, so the pipeline bakes a settled moment of the hook (the `POSTER` in the timeline) into frame 0 of every cut; it shows for one frame on playback.
 - On the vertical, sound starts at frame 0. On the master a 0.3 to 0.5 s silence before the first hit is fine.
 - Hook patterns that work: the problem stated by an object ("last watered Tuesday"), a question the viewer is already asking, a before and after in one frame, a moment the viewer recognises from their own day, a number the product can back.
 
@@ -22,6 +22,7 @@ Starting values, not laws. Each comes from studying product films and short form
 - Three sizes, one family, two weights. Emphasis by weight or colour, never by gradient.
 - One claim per card, six words or fewer.
 - At most 20 characters per second of reading; a statement holds at least 1.5 times its read aloud time; nothing readable stays under 0.8 s.
+- Fast in, then hold. Text arrives quickly and then stays settled (fully in, not yet leaving): a label of 1 to 3 words at least 0.8 s, a sentence 0.3 s per word with a 1.2 s minimum. Pace comes from snappy entrances and cuts, never from pulling text early. The label floor is the same 0.8 s as above; for a sentence the 1.5 times read aloud rule asks more (0.5 to 0.6 s per word read aloud at 150 to 180 words per minute), so on a card that rule wins. Captions follow the voice, so the gate holds each caption page to the settled rule: a line's last page stays up until it has had its time, and `check:captions` fails a page the voice, the next line, the loop or a teaser edge cuts short.
 - Voice and on-screen text never say different things at the same moment.
 
 ## UI and camera
@@ -38,6 +39,8 @@ Starting values, not laws. Each comes from studying product films and short form
 
 - Voice intelligibility first. Duck the music 8 to 15 dB under every line.
 - Sparse effects: a cue only where the viewer should notice something (a message lands, a job is done). One hit per section boundary at most, one riser at most, silence just before the turn.
+- Real, licensed sounds. A synthesized beep reads as a placeholder; the starter ships CC0 sounds and can rate a whole CC0 library for the role. Bright sounds tire the ear when they repeat: keep them for single, quiet hits.
+- On music with a clear beat, land the 1 to 3 biggest reveals within 0.15 s of a strong cue, and items that appear one after another on consecutive beats. Above about 110 BPM readable text takes every other beat. Measure the track (`npm run beats`); a BPM alone does not say where the beats fall. The voice and the reading time win over the beat.
 - Music changes where the picture changes: one section per act (the composition plan does this).
 - Deliver around -14 LUFS integrated with true peak at or under -1 dBTP, measured on the encoded file.
 - If a voice in the film is supposed to be a person, it has to sound like one; a robotic line anywhere sinks the whole film.
